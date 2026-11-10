@@ -377,7 +377,7 @@ python3 backend/rag/build_index.py
 
 ### Frontend — Vercel
 
-1. Set `NEXT_PUBLIC_API_BASE_URL` to your backend's public URL (for example, `https://your-backend.example.com`) and redeploy. This variable is required in production; localhost is used only during local development.
+1. Set `NEXT_PUBLIC_API_BASE_URL` to your backend's public URL (for example, `https://your-backend.example.com`) and redeploy if you use a different backend. This project defaults to `https://dsa-progress-chatbot-hnyb.onrender.com` in production and `http://localhost:5001` in local development.
 2. Deploy the `frontend/` directory
 3. Build command: `npm run build`
 
@@ -400,3 +400,4 @@ MIT — use it freely for your interview prep.
 <div align="center">
 <sub>Built with ☕ and a healthy fear of dynamic programming.</sub>
 </div>
+
