@@ -14,6 +14,7 @@ default_origins = [
     "http://localhost:3000",           # local dev
     "https://my-dbot.vercel.app",      # production
     "https://d-bot-jet.vercel.app",    # legacy
+    "https://dsa-progress-chatbot.vercel.app",  # current deployment
 ]
 configured_origins = os.getenv("FRONTEND_ORIGINS", "").split(",")
 allowed_origins = [
