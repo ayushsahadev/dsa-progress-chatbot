@@ -362,7 +362,7 @@ python3 backend/rag/build_index.py
 
 **Add a new SDE level** — add an entry to `SDE_PERSONAS`, then add the level to the dropdown array in `frontend/src/app/chat/page.tsx`.
 
-**Swap the model** — change the default in `backend/simple_agent.py` and `backend/app.py`. Any chat-capable model on [Groq's supported list](https://console.groq.com/docs/models) works. If the model emits `<think>` blocks, `_extract_reply()` in `simple_agent.py` strips them automatically.
+**Swap the model** — change the default in `backend/simple_agent.py` and `backend/app.py`. Any chat-capable model on [Groq's supported list](https://console.groq.com/docs/models) works. If the model emits `<think>` blocks, `_extract_reply()` in `simple_agent.py` strips them automatically. The default is `qwen/qwen3.8-27b`.
 
 ---
 
@@ -381,7 +381,7 @@ python3 backend/rag/build_index.py
 
 ### Frontend — Vercel
 
-1. Set `NEXT_PUBLIC_API_BASE_URL` to your backend's public URL
+1. Set `NEXT_PUBLIC_API_BASE_URL` to your backend's public URL (for example, `https://your-backend.example.com`) and redeploy. This variable is required in production; localhost is used only during local development.
 2. Deploy the `frontend/` directory
 3. Build command: `npm run build`
 

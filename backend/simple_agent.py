@@ -189,7 +189,7 @@ def _extract_reply(message: dict) -> str:
     return content or "❌ No response received."
 
 
-def simple_agent(user_input, session_id=None, model="qwen/qwen3.6-27b", level="SDE1"):
+def simple_agent(user_input, session_id=None, model="qwen/qwen3.8-27b", level="SDE1"):
     """
     DSA interview preparation chatbot with RAG-augmented context.
 

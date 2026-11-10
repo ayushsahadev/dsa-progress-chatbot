@@ -13,7 +13,9 @@ import remarkGfm from 'remark-gfm';
 
 import { getOrCreateSessionId } from "@/utils/session";
 
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5001';
+const configuredApiUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/+$/, '');
+const baseUrl = configuredApiUrl || (process.env.NODE_ENV === 'development' ? 'http://localhost:5001' : '');
+const apiConfigured = Boolean(baseUrl);
 
 /**
  * Qwen3 emits one leading <think>…</think> block before the answer.
@@ -104,10 +106,10 @@ export default function ChatPage() {
 
   // Load memory when session is known
   useEffect(() => {
-    if (!sessionId) return;
+    if (!sessionId || !apiConfigured) return;
     const loadMemory = async () => {
       try {
-        const res = await axios.get(`${baseUrl}/api/memory`, { params: { session_id: sessionId } });
+        const res = await axios.get(`${baseUrl}/api/memory`, { params: { session_id: sessionId }, timeout: 15_000 });
         const restoredChat = res.data.flatMap((log: any) => ([
           { sender: "user", text: log.user_input },
           { sender: "bot", text: log.response },
@@ -131,10 +133,12 @@ export default function ChatPage() {
     sessionStorage.setItem("session_id", newSessionId);
     setSessionId(newSessionId);
 
-    try {
-      await axios.post(`${baseUrl}/api/clear?session_id=${sessionId}`);
-    } catch (err) {
-      console.error("❌ Failed to clear memory:", err);
+    if (apiConfigured && sessionId) {
+      try {
+        await axios.post(`${baseUrl}/api/clear?session_id=${sessionId}`, {}, { timeout: 15_000 });
+      } catch (err) {
+        console.error("❌ Failed to clear memory:", err);
+      }
     }
     inputRef.current?.focus();
   };
@@ -150,6 +154,16 @@ export default function ChatPage() {
       setSessionId(currentSessionId);
     }
 
+    if (!apiConfigured) {
+      setChat(prev => [...prev, { sender: "user", text: message }, {
+        sender: "bot",
+        text: "Chat is not configured for this deployment. Set NEXT_PUBLIC_API_BASE_URL in the Vercel project settings to your backend's public URL, then redeploy.",
+      }]);
+      setInput('');
+      enqueueSnackbar("The deployed chat service is not configured.", { variant: "error" });
+      return;
+    }
+
     setChat(prev => [...prev, { sender: "user", text: message }, { sender: "bot", text: "" }]);
     setInput('');
     setIsLoading(true);
@@ -159,7 +173,7 @@ export default function ChatPage() {
         message,
         session_id: currentSessionId,
         level: selectedLevel,
-      });
+      }, { timeout: 100_000 });
 
       const data = res.data.reply;
       const reply = data.message || "❌ No response";
@@ -168,9 +182,15 @@ export default function ChatPage() {
       }
 
       setChat(prev => [...prev.slice(0, -1), { sender: "bot", text: reply }]);
-    } catch {
-      setChat(prev => [...prev.slice(0, -1), { sender: "bot", text: "❌ Server error. Please try again." }]);
-      enqueueSnackbar("Something went wrong while sending your message.", { variant: "error" });
+    } catch (error) {
+      const timedOut = axios.isAxiosError(error) && error.code === 'ECONNABORTED';
+      const message = timedOut
+        ? "The chat service timed out. Please try again in a moment."
+        : axios.isAxiosError(error) && error.response
+          ? `The chat service returned an error (HTTP ${error.response.status}). Please try again later.`
+          : "Could not reach the chat service. Check that the backend is running and NEXT_PUBLIC_API_BASE_URL points to it.";
+      setChat(prev => [...prev.slice(0, -1), { sender: "bot", text: `❌ ${message}` }]);
+      enqueueSnackbar(message, { variant: "error" });
     } finally {
       setIsLoading(false);
     }
