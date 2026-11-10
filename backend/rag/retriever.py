@@ -71,6 +71,11 @@ def retrieve(query: str, k: int = 3, min_score: float = 0.25) -> str:
         k:         Number of chunks to retrieve.
         min_score: Minimum cosine-similarity score to include a chunk.
     """
+    # Small hosted instances may not have enough memory for PyTorch and the
+    # embedding model. In that case the LLM can still answer without RAG.
+    if os.getenv("RAG_ENABLED", "true").strip().lower() in {"0", "false", "no", "off"}:
+        return ""
+
     if not _load():
         return ""
 

@@ -10,3 +10,5 @@ services:
         sync: false
       - key: FRONTEND_ORIGINS
         sync: false
+      - key: RAG_ENABLED
+        value: "false"

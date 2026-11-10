@@ -111,7 +111,8 @@ export default function ChatPage() {
     if (!sessionId || !apiConfigured) return;
     const loadMemory = async () => {
       try {
-        const res = await axios.get(`${baseUrl}/api/memory`, { params: { session_id: sessionId }, timeout: 15_000 });
+        // Render free instances can take 50+ seconds to wake from sleep.
+        const res = await axios.get(`${baseUrl}/api/memory`, { params: { session_id: sessionId }, timeout: 90_000 });
         const restoredChat = res.data.flatMap((log: any) => ([
           { sender: "user", text: log.user_input },
           { sender: "bot", text: log.response },
