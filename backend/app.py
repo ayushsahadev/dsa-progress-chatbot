@@ -10,11 +10,18 @@ import os
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": [
+default_origins = [
     "http://localhost:3000",           # local dev
     "https://my-dbot.vercel.app",      # production
     "https://d-bot-jet.vercel.app",    # legacy
-]}})
+]
+configured_origins = os.getenv("FRONTEND_ORIGINS", "").split(",")
+allowed_origins = [
+    origin.strip().rstrip("/")
+    for origin in [*default_origins, *configured_origins]
+    if origin.strip()
+]
+CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
 
 
 @app.route("/")

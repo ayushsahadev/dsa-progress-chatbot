@@ -370,12 +370,8 @@ python3 backend/rag/build_index.py
 
 ### Backend — Render / Railway / Fly.io
 
-1. Set env vars: `GROQ_API_KEY`, `MONGO_URI`, `BACKEND_PORT`
-2. Add a **build step** to generate the RAG index before the server starts:
-   ```bash
-   pip install -r requirements.txt && python rag/build_index.py
-   ```
-3. Start command: `gunicorn app:app`
+1. Set `GROQ_API_KEY` and `FRONTEND_ORIGINS` in the backend host. `FRONTEND_ORIGINS` is a comma-separated list of allowed frontend origins, such as `https://your-app.vercel.app`. Set `MONGO_URI` if you want chat history persisted to MongoDB.
+2. For Render, use the included `render.yaml` Blueprint. It installs dependencies, builds the RAG index, and binds Gunicorn to Render's assigned port. For other hosts, use build command `pip install -r requirements.txt && python rag/build_index.py` and start command `gunicorn --bind 0.0.0.0:$PORT app:app` from the `backend/` directory.
 
 > The `backend/index/` directory is gitignored. If your host doesn't support persistent disk, the backend will fall back to plain LLM responses without retrieval — still functional, just without the RAG context.
 
@@ -385,7 +381,7 @@ python3 backend/rag/build_index.py
 2. Deploy the `frontend/` directory
 3. Build command: `npm run build`
 
-Don't forget to add your Vercel domain to the `CORS` allowlist in [`backend/app.py`](backend/app.py).
+Set `FRONTEND_ORIGINS` on the backend to your Vercel domain. Separate multiple origins with commas.
 
 ---
 
