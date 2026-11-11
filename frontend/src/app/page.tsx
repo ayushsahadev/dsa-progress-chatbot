@@ -190,7 +190,7 @@ export default function StartPage() {
 
       <footer className="relative border-t border-white/[0.06]">
         <div className="max-w-7xl mx-auto px-6 py-5 text-center text-xs text-white/25">
-          © 2025 · Divya Dhiman
+          © 2025 · Ayush Saha
         </div>
       </footer>
     </div>

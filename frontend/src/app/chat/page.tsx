@@ -14,7 +14,9 @@ import remarkGfm from 'remark-gfm';
 import { getOrCreateSessionId } from "@/utils/session";
 
 const configuredApiUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/+$/, '');
-const baseUrl = configuredApiUrl || (process.env.NODE_ENV === 'development' ? 'http://localhost:5001' : '');
+const baseUrl = configuredApiUrl || (process.env.NODE_ENV === 'development'
+  ? 'http://localhost:5001'
+  : 'https://dsa-progress-chatbot-hnyb.onrender.com');
 const apiConfigured = Boolean(baseUrl);
 
 /**
@@ -109,7 +111,8 @@ export default function ChatPage() {
     if (!sessionId || !apiConfigured) return;
     const loadMemory = async () => {
       try {
-        const res = await axios.get(`${baseUrl}/api/memory`, { params: { session_id: sessionId }, timeout: 15_000 });
+        // Render free instances can take 50+ seconds to wake from sleep.
+        const res = await axios.get(`${baseUrl}/api/memory`, { params: { session_id: sessionId }, timeout: 90_000 });
         const restoredChat = res.data.flatMap((log: any) => ([
           { sender: "user", text: log.user_input },
           { sender: "bot", text: log.response },
@@ -416,3 +419,4 @@ export default function ChatPage() {
     </div>
   );
 }
+

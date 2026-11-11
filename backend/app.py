@@ -10,11 +10,18 @@ import os
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": [
+default_origins = [
     "http://localhost:3000",           # local dev
-    "https://my-dbot.vercel.app",      # production
     "https://d-bot-jet.vercel.app",    # legacy
-]}})
+    "https://dsa-progress-chatbot.vercel.app",  # current deployment
+]
+configured_origins = os.getenv("FRONTEND_ORIGINS", "").split(",")
+allowed_origins = [
+    origin.strip().rstrip("/")
+    for origin in [*default_origins, *configured_origins]
+    if origin.strip()
+]
+CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
 
 
 @app.route("/")
@@ -92,3 +99,4 @@ start_cron_persist()
 if __name__ == "__main__":
     port = int(os.getenv("BACKEND_PORT", 5001))
     app.run(host="0.0.0.0", port=port, debug=False)
+
